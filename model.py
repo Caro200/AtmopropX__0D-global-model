@@ -141,39 +141,29 @@ class GlobalModel:
 
     def monoatomic_gas_energy_derivative(self, state):
         """
-        Calcule la dérivée de l'énergie du gaz : (3/2) * n_g * k_B * T_g
+        Calcule la dérivée de l'énergie des espèces monoatomiques : (3/2) * n_mono * k_B * T_mono
         
         Input :
         'state' has format [n_e, n_N2, ..., n_N+, T_e, T_monoato, ..., T_diato]
         """
 
-        # Taux de réaction
-        K_diss = self.K_diss(T_e)  # Taux de dissociation
-        K_vibr = self.K_vibr(T_e)  # Taux d'excitation vibrationnelle
-        K_rot = self.K_rot(T_e)  # Taux d'excitation rotationnelle
+    energ = 0
+    for reac in self.reaction_set:
+        energ += reac.mono_gas_energy_change_rate(state):
+    return energ
 
-        # Collisions élastiques : transfert d'énergie des électrons vers le gaz
-        a = 3 * (m_e / self.m_i) * k * (T_e - T_g) * n_e * n_g * self.K_el(T_e)
+    def diatomic_gas_energy_derivative(self, state):
+        """
+        Calcule la dérivée de l'énergie des espèces diatomiques : (3/2) * n_di * k_B * T_di
+        
+        Input :
+        'state' has format [n_e, n_N2, ..., n_N+, T_e, T_monoato, ..., T_diato]
+        """
 
-        # Transfert d'énergie des ions au gaz neutre via collisions
-        b = (1/4) * self.m_i * (u_B(T_e, self.m_i)**2) * n_e * n_g * SIGMA_I * maxwellian_flux_speed(T_g, self.m_i)
-
-        # Dissociation des molécules 
-        c = E_diss * n_e * n_g * K_diss
-
-        # Excitation vibrationnelle 
-        d = E_vibr * n_e * n_g * K_vibr
-
-        # Excitation rotationnelle 
-        e = E_rot * n_e * n_g * K_rot
-
-        # Transfert de chaleur aux parois : calcul de lamda0 ? 
-        lambda_0 = self.R / 2.405 + self.L / pi  # Longueur de diffusion thermique
-        f = self.kappa * (T_g - self.T_g_0) * self.A / (self.V * lambda_0)
-
-        # Somme des contributions
-        return a + b + c + d + e - f
-
+    energ = 0
+    for reac in self.reaction_set:
+        energ += reac.di_gas_energy_change_rate(state):
+    return energ
 
     def particles_densities_derivative(self, state: NDArray[float]): # type: ignore
         """Takes the state as input and returns derivative of all particle densities
