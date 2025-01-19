@@ -78,7 +78,9 @@ class Reaction:
         power_loss = self.energy_threshold * K * np.prod(state[self.reactives_indices]) # product of energy, rate constant and densities of all the stuff
         
         return power_loss
-    
+
+    def mono_gas_energy_change_rate(self, state: NDArray[float]):
+        return 0
     
     def __str__(self):
         """Returns string describing the reaction"""
@@ -133,5 +135,18 @@ class ElasticCollisionWithElectron(Reaction):
         delta_temp = state[self.species.nb] - state[self.species.nb + self.reactives[0].nb_atoms ]
 
         energy_change = 3 * mass_ratio * k_B * delta_temp * state[0] * state[self.reactives_indices[0]] * K 
+   
+        return energy_change
+
+    @override
+    def mono_gas_energy_change_rate(self, state):
+        if self.reactives[0].nb_atoms == 1:
+            K = self.rate_constant(state)
+            mass_ratio = m_e / self.reactives[0].mass
+            delta_temp = state[self.species.nb] - state[self.species.nb + 1 ]
+
+            energy_change = 3 * mass_ratio * k_B * delta_temp * state[0] * state[self.reactives_indices[0]] * K
+        else:
+            energy_change = 0
    
         return energy_change
