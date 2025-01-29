@@ -133,7 +133,21 @@ class GlobalModel:
         # ! losses with walls not considered
         p_loss = 0
         for reac in self.reaction_set:
-                p_loss += reac.electron_loss_power(state)        
+                p_loss += reac.electron_loss_power(state)      
+
+
+        """ pertes au niveaux des parois """
+        def S_eff(self): # surface efficace de pertes
+            return 2 * pi * self.R^2 * h_R(self,R) + 2 * pi * self.R * self.L * h_L(self,L)
+        T_e = state[Species.nb()] 
+        E_cin = 7 * e * T_e # Dans le modèle de Chabert ; cas général plus compliqué
+        v_e = maxwellian_flux_speed(T_e,m_e) 
+        Gamma_e = n_e v_e / 4# Flux electronique vers les parois
+        P_wall = E_cin * Gamma_e * S_eff(self) / V(self) # Puissance volumique perdue aux parois
+        """ balance énergétique """
+        power_balance = self.P_abs(state) - p_loss - P_wall
+
+        
         power_balance = self.P_abs(state) - p_loss
 
         return power_balance
